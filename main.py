@@ -1,3 +1,16 @@
 from CICD import logger
-logger.info("Welcome to my custom log") 
+#logger.info("Welcome to my custom log") 
+from CICD.pipeline.stage01_dataingestion import DataIngestionTrainingPipeline
+
+STAGE_NAME = "Data Ingestion stage"
+try:
+    logger.info(f">>>>>> stage {STAGE_NAME} started <<<<<<")
+    data_ingestion = DataIngestionTrainingPipeline()
+    data_ingestion.main()
+    logger.info(f">>>>>> stage {STAGE_NAME} completed <<<<<<\n\nx==========x")
+except Exception as e:
+    logger.exception(e)
+    raise e
+
+
 
