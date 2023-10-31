@@ -1,0 +1,117 @@
+schema: '2.0'
+stages:
+  data_ingestion:
+    cmd: python src/CICD/pipeline/stage01_dataingestion.py
+    deps:
+    - path: config/config.yaml
+      hash: md5
+      md5: 711e7610ef7ab893efd6593fe7a0109b
+      size: 994
+    - path: src/CICD/pipeline/stage01_dataingestion.py
+      hash: md5
+      md5: 3630608b166e59f7d1d348d9d354bd8e
+      size: 885
+    outs:
+    - path: artifacts/data_ingestion/traincicdnewdata
+      hash: md5
+      md5: 6e27200defbff5b87cc7474ddc71fd24.dir
+      size: 26224272
+      nfiles: 732
+  prepare_base_model:
+    cmd: python src/CICD/pipeline/stage02_basemodel.py
+    deps:
+    - path: config/config.yaml
+      hash: md5
+      md5: 711e7610ef7ab893efd6593fe7a0109b
+      size: 994
+    - path: src/CICD/pipeline/stage02_basemodel.py
+      hash: md5
+      md5: 5b7b3487062a6d4d0cc06603bc56fd36
+      size: 970
+    params:
+      params.yaml:
+        CLASSES: 7
+        IMAGE_SIZE:
+        - 224
+        - 224
+        - 3
+        INCLUDE_TOP: false
+        LEARNING_RATE: 0.01
+        WEIGHTS: imagenet
+    outs:
+    - path: artifacts/prepare_base_model
+      hash: md5
+      md5: eb0ab0a9e52763803605993ab3b069cb.dir
+      size: 118561008
+      nfiles: 2
+  training:
+    cmd: python src/CICD/pipeline/stage03_training.py
+    deps:
+    - path: artifacts/data_ingestion/traincicdnewdata
+      hash: md5
+      md5: 6e27200defbff5b87cc7474ddc71fd24.dir
+      size: 26224272
+      nfiles: 732
+    - path: artifacts/prepare_base_model
+      hash: md5
+      md5: eb0ab0a9e52763803605993ab3b069cb.dir
+      size: 118561008
+      nfiles: 2
+    - path: config/config.yaml
+      hash: md5
+      md5: 711e7610ef7ab893efd6593fe7a0109b
+      size: 994
+    - path: src/CICD/components/prepare_callbacks.py
+      hash: md5
+      md5: 55fc06f1d9dc3ec46f382e857674289a
+      size: 1012
+    - path: src/CICD/pipeline/stage03_training.py
+      hash: md5
+      md5: 959978570c184b41add1a9795625aad6
+      size: 1230
+    params:
+      params.yaml:
+        AUGMENTATION: true
+        BATCH_SIZE: 16
+        EPOCHS: 5
+        IMAGE_SIZE:
+        - 224
+        - 224
+        - 3
+    outs:
+    - path: artifacts/training/model.h5
+      hash: md5
+      md5: 4a1c97a0ca5968a7bc9443df7a94589b
+      size: 60344240
+  evaluation:
+    cmd: python src/CICD/pipeline/stage04_evaluation.py
+    deps:
+    - path: artifacts/data_ingestion/traincicdnewdata
+      hash: md5
+      md5: 6e27200defbff5b87cc7474ddc71fd24.dir
+      size: 26224272
+      nfiles: 732
+    - path: artifacts/training/model.h5
+      hash: md5
+      md5: 4a1c97a0ca5968a7bc9443df7a94589b
+      size: 60344240
+    - path: config/config.yaml
+      hash: md5
+      md5: 711e7610ef7ab893efd6593fe7a0109b
+      size: 994
+    - path: src/CICD/pipeline/stage04_evaluation.py
+      hash: md5
+      md5: 42dd2ffc8623a426124cfce5f818ab53
+      size: 842
+    params:
+      params.yaml:
+        BATCH_SIZE: 16
+        IMAGE_SIZE:
+        - 224
+        - 224
+        - 3
+    outs:
+    - path: scores.json
+      hash: md5
+      md5: 0df9fc01d017a7bd9bf34d12f7ae1d7f
+      size: 72
