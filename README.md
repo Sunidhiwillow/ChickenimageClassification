@@ -23,7 +23,7 @@ Run the app
 Then open your local host and port 8080
 
 
-# DVC command
+## DVC command
 1. dvc init
 2. dvc repro
 3. dvc dag
